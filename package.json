@@ -1,0 +1,38 @@
+{
+  "name": "rest-api-bank",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ben-whitfield/rest-api-bank.git"
+  },
+  "keywords": [],
+  "author": "Ben Whitfield",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ben-whitfield/rest-api-bank/issues"
+  },
+  "homepage": "https://github.com/ben-whitfield/rest-api-bank#readme",
+  "description": "",
+  "devDependencies": {
+    "@types/body-parser": "^1.19.6",
+    "@types/compression": "^1.8.1",
+    "@types/cookie-parser": "^1.4.9",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "compression": "^1.8.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  }
+}
