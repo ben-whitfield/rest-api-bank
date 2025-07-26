@@ -4,6 +4,13 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
+import mongoose from 'mongoose';
+
+import routes from './routes';
+
+const PORT = process.env.PORT || 8080;
+const HOST = process.env.HOST || 'localhost';
+const MONGO_URL = process.env.MONGO_URL;
 
 const app = express();
 
@@ -17,6 +24,13 @@ app.use(bodyParser.json());
 
 const server = http.createServer(app);
 
-server.listen(8080, () => {
-  console.log('Server is running on http://localhost:8080');
+server.listen(PORT, () => {
+  console.log('Server is running on http://' + HOST + ':' + PORT);
 });
+
+mongoose.connect(MONGO_URL);
+mongoose.connection.on('error', (err: Error) => {
+  console.log('MongoDB connection error:', err);
+});
+
+app.use('/', routes());
