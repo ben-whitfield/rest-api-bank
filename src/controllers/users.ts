@@ -11,6 +11,21 @@ export const getAllUsers = async (req: express.Request, res: express.Response) =
   }
 }
 
+export const getUser = async (req: express.Request, res: express.Response) => {
+  try {
+    const { id } = req.params;
+    console.log(`Fetching user with ID: ${id}`);
+    const existingUser = await getUserById(id);
+    if ( existingUser ) {
+      res.status(200).json(existingUser);
+    } else {
+      res.status(404).json({ error: 'User not found' });
+    }
+  } catch (error) {
+    res.status(400).json({ error: 'Internal Server Error' });
+  }
+}
+
 export const deleteUser = async (req: express.Request, res: express.Response) => {
   try {
     const { id } = req.params;
