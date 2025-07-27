@@ -1,6 +1,7 @@
 import express from 'express';
 import { createUser, getUserByEmail } from '../db/users';
 import { authentication, random } from '../helpers';
+import { generateJWT } from '../helpers';
 
 export const login = async (req: express.Request, res: express.Response) => {
   try {
@@ -17,19 +18,17 @@ export const login = async (req: express.Request, res: express.Response) => {
     }
 
     const expectedHash = authentication(user.authentication.salt, password);
-    console.log('Expected hash:', expectedHash);
-    console.log('User password:', user.authentication.password);
-
+        
     if(user.authentication.password !== expectedHash) {
       return res.status(403).send('Invalid password');
     }
 
     const salt = random();
-    user.authentication.sessionToken = authentication(salt, user._id.toString());
+    user.authentication.sessionToken = generateJWT({ id: user._id.toString(), salt: salt });
 
     await user.save();
     res.cookie('BANK_AUTH', user.authentication.sessionToken, { domain: 'localhost', path: '/', httpOnly: true, secure: false });
-    return res.status(200).send('Logging in user:' + email).json(user).end();
+    return res.status(200).json(user).end();
 
   } catch (error) {
     console.log('Error during login:', error);

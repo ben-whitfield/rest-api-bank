@@ -1,12 +1,28 @@
 import express from 'express';
 import { get, identity, merge } from 'lodash';
+import jwt from 'jsonwebtoken';
 
 import { getUserBySessionToken } from '../db/users';
 
+const SECRET = process.env.SECRET;
+
 export const isAuthenticated = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+  
   try {
-    const sessionToken = req.cookies.BANK_AUTH;
+    const sessionToken = authHeader.split(' ')[1];
+    console.log('Token received:', sessionToken);
+
     if (!sessionToken) {
+      return res.status(403).send('Unauthorized');
+    }
+
+    const decoded = jwt.verify(sessionToken, SECRET);
+    if (!decoded ) {
       return res.status(403).send('Unauthorized');
     }
 
@@ -15,6 +31,8 @@ export const isAuthenticated = async (req: express.Request, res: express.Respons
       return res.status(403).send('Unauthorized');
     }
 
+    (req as any).user = decoded;
+    
     merge(req, { identity: existingUser });
     
     return next();
