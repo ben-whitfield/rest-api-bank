@@ -14,7 +14,7 @@ export const authentication = (salt: string, password: string) => {
 
 // Generate a JWT token
 export const generateJWT = (payload: object) => {
-  return jwt.sign(payload, SECRET, { expiresIn: '1h' });
+  return jwt.sign(payload, SECRET, { expiresIn: '6h' });
 };
 
 // Verify a JWT token

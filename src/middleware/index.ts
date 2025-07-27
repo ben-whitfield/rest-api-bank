@@ -3,6 +3,7 @@ import { get, identity } from 'lodash';
 import jwt from 'jsonwebtoken';
 
 import { getUserBySessionToken } from '../db/users';
+import { AccountsModel } from '../db/accounts';
 
 declare global {
   namespace Express {
@@ -58,6 +59,30 @@ export const isOwner = (req: express.Request, res: express.Response, next: expre
     }
 
     if (currentUserId.toString() !== id) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+
+    next();
+  } catch (error) {
+    return res.status(400).json({ message: 'Authorization error' });
+  }
+}
+
+export const isAccountOwner = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  try {
+    const { id } = req.params;
+    const currentUserId = get(req, 'identity._id') as string;
+    if (!currentUserId) {
+      return res.status(403).send('Unauthorized');
+    }
+
+    const account = await AccountsModel.findById(id);
+
+    if (!account) {
+      return res.status(404).json({ message: 'Account not found' });
+    }
+
+    if (currentUserId.toString() !== account.userId.toString()) {
       return res.status(403).json({ message: 'Forbidden' });
     }
 

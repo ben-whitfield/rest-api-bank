@@ -17,6 +17,7 @@ export const AccountsModel = mongoose.model("Account", accountsSchema);
 
 export const getAccounts = () => AccountsModel.find();
 export const getAccountById = (id: string) => AccountsModel.findById(id);
+export const getAccountByUserId = (userId: string) => AccountsModel.find({ userId }).then(accounts => accounts.map(account => account.toObject()));
 export const createAccount = (values: Record<string, any>) => 
   new AccountsModel(values).save().then(account => account.toObject());
 
