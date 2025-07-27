@@ -5,8 +5,10 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import mongoose from 'mongoose';
-
+import dotenv from 'dotenv';
 import routes from './routes';
+
+dotenv.config({ path: '.env', quiet: true });
 
 const PORT = process.env.PORT || 8080;
 const HOST = process.env.HOST || 'localhost';
@@ -28,6 +30,7 @@ server.listen(PORT, () => {
   console.log('Server is running on http://' + HOST + ':' + PORT);
 });
 
+// mongoose.Promise = Promise;
 mongoose.connect(MONGO_URL);
 mongoose.connection.on('error', (err: Error) => {
   console.log('MongoDB connection error:', err);
