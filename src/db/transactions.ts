@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const transactionSchema = new mongoose.Schema({
-  amount: {
+  amount: { 
     type: Number,
     required: true,
     min: 0.00,
@@ -20,19 +20,13 @@ const transactionSchema = new mongoose.Schema({
   reference: {
     type: String,
   },
-  userId: {
-    type: String,
-    required: true, 
-  },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   createdTimestamp: {
     type: Date,
     required: true,
     default: Date.now,
   },
-  accountNumber: {
-    type: String,
-    required: true,
-  },
+  accountNumber: { type: mongoose.Schema.Types.ObjectId, ref: "Account", required: true },
 });
 
 export const TransactionModel = mongoose.model("Transaction", transactionSchema);

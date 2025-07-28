@@ -23,7 +23,7 @@ export const create = async (req: express.Request, res: express.Response) => {
     return res.status(201).json(transaction);
   } catch (error) {
     console.log('Error creating transaction:', error);
-    return res.status(500).json({ message: 'Error creating transaction' });
+    return res.status(400).json({ message: 'Error creating transaction' });
   }
 };
 
@@ -34,7 +34,7 @@ export const list = async (req: express.Request, res: express.Response) => {
     return res.status(200).json({ transactions });
   } catch (error) {
     console.log('Error listing transactions:', error);
-    return res.status(500).json({ message: 'Error listing transactions' });
+    return res.status(400).json({ message: 'Error listing transactions' });
   }
 };
 
@@ -46,7 +46,7 @@ export const get = async (req: express.Request, res: express.Response) => {
       return res.status(404).json({ message: 'Transaction not found' });
     }
 
-    if (transaction.accountNumber !== accountNumber) {
+    if (transaction.accountNumber.toString() !== accountNumber) {
       return res.status(400).json({ message: 'Transaction does not belong to this account' });
     }
 
