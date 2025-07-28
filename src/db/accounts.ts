@@ -23,7 +23,9 @@ export const createAccount = (values: Record<string, any>) =>
   new AccountsModel(values).save().then(account => account.toObject());
 
 export const deleteAccountById = (id: string) => AccountsModel.findByIdAndDelete(id);
+
 export const updateAccountById = (id: string, values: Record<string, any>) => 
-  AccountsModel.findByIdAndUpdate(id, values, { new: true }).then(account => account?.toObject());
+  AccountsModel.findByIdAndUpdate(id, values, { new: true }).then((account) => account.toObject());
+
 export const getAccountByUserAndName = (name: string, userId: string) => 
   AccountsModel.findOne({ name, userId }).then(account => account?.toObject());

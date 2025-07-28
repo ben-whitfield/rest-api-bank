@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { getAccountByUserId, createAccount, getAccountByUserAndName, getAccountById, deleteAccountById } from '../db/accounts';
+import { getAccountByUserId, createAccount, getAccountByUserAndName, getAccountById, deleteAccountById, updateAccountById } from '../db/accounts';
 
 export const create = async (req: express.Request, res: express.Response) => {
   try {
@@ -69,6 +69,26 @@ export const deleteAccount = async (req: express.Request, res: express.Response)
     } else {
       res.status(404).json({ error: 'Account not found' });
     }
+  } catch (error) {
+    res.status(400).json({ error: 'Internal Server Error' });
+  }
+}
+
+export const updateAccount = async (req: express.Request, res: express.Response) => {
+  try {
+    const { id } = req.params;
+    const { name } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ error: 'Account name is required' });
+    }
+
+    const existingAccount = await getAccountById(id);
+
+    existingAccount.name = name;
+    await existingAccount.save();
+    return res.status(200).json(existingAccount).end();
+    
   } catch (error) {
     res.status(400).json({ error: 'Internal Server Error' });
   }
