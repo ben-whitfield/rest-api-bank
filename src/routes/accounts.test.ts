@@ -54,4 +54,15 @@ describe('Accounts Routes', () => {
     expect(accountsController.deleteAccount).toHaveBeenCalled();
     expect(res.status).toBe(204);
   });
+
+  it('PATCH /v1/accounts/:id calls isAuthenticated, isAccountOwner, and updateAccount', async () => {
+    (accountsController.updateAccount as jest.Mock).mockImplementation((req, res) => res.status(200).send('updated'));
+    const res = await request(app)
+      .patch('/v1/accounts/123')
+      .send({ name: 'Updated Account', accountType: 'personal' });
+    expect(middleware.isAuthenticated).toHaveBeenCalled();
+    expect(middleware.isAccountOwner).toHaveBeenCalled();
+    expect(accountsController.updateAccount).toHaveBeenCalled();
+    expect(res.status).toBe(200);
+  });
 });
