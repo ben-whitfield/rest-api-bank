@@ -6,8 +6,6 @@ export const create = async (req: express.Request, res: express.Response) => {
   try {
     const { name, type, userId, currency } = req.body || {};
 
-    console.log(`Registering account for user ${userId} with name ${name} and type ${type}`);
-    
     if (!name || !type || !userId || !currency) {
       return res.status(400).send('Missing required fields');
     }

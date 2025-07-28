@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 
 import { getUserBySessionToken } from '../db/users';
 import { AccountsModel } from '../db/accounts';
+import { TransactionModel } from '../db/transactions';
 
 declare global {
   namespace Express {
@@ -70,14 +71,46 @@ export const isOwner = (req: express.Request, res: express.Response, next: expre
 
 export const isAccountOwner = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   try {
-    const { id } = req.params;
     const currentUserId = get(req, 'identity._id') as string;
     if (!currentUserId) {
       return res.status(403).send('Unauthorized');
     }
+    const { id } = req.params;
+    
 
     const account = await AccountsModel.findById(id);
 
+    if (!account) {
+      return res.status(404).json({ message: 'Account not found' });
+    }
+
+    if (currentUserId.toString() !== account.userId.toString()) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+
+    next();
+  } catch (error) {
+    return res.status(400).json({ message: 'Authorization error' });
+  }
+}
+
+export const isTransactionOwner = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  try {
+    const currentUserId = get(req, 'identity._id') as string;
+    if (!currentUserId) {
+      return res.status(403).send('Unauthorized');
+    }
+    
+    const { id } = req.params;
+    
+
+    const transaction = await TransactionModel.findById(id);
+
+    if (!transaction) {
+      return res.status(404).json({ message: 'Transaction not found' });
+    }
+
+    const account = await AccountsModel.findOne({ _id: transaction.accountNumber });
     if (!account) {
       return res.status(404).json({ message: 'Account not found' });
     }
