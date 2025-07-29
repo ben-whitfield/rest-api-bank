@@ -1,95 +1,108 @@
 import express from 'express';
-
-import { getAccountByUserId, createAccount, getAccountByUserAndName, getAccountById, deleteAccountById, updateAccountById } from '../db/accounts';
+import {
+  createAccount,
+  getAccounts,
+  getAccountByNumber,
+  updateAccountByNumber,
+  deleteAccountByNumber,
+} from '../db/accounts';
 
 export const create = async (req: express.Request, res: express.Response) => {
   try {
-    const { name, type, userId, currency } = req.body || {};
+    const { name, accountType } = req.body;
+    const userId = (req as any).identity?._id;
 
-    if (!name || !type || !userId || !currency) {
-      return res.status(400).send('Missing required fields');
+    if (!name || !accountType) {
+      return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    const existingAccount = await getAccountByUserAndName(name, userId);
-    if (existingAccount) {
-      return res.status(409).send('Account already exists');
-    }
+    const accountNumber = "01" + Math.floor(100000 + Math.random() * 900000).toString();
 
     const account = await createAccount({
+      accountNumber,
       name,
-      accountType: type,
+      accountType,
       userId,
-      currency,
-      balance: 0,
+      balance: 0.0,
+      currency: "GBP",
+      sortCode: "10-10-10",
+      createdTimestamp: new Date(),
+      updatedTimestamp: new Date(),
     });
 
-    return res.status(200).json(account).end();
-
+    return res.status(201).json(account);
   } catch (error) {
-    console.log('Error during registration:', error);
-    return res.status(400).send('Error during registration');
+    return res.status(500).json({ message: 'An unexpected error occurred' });
   }
-}
+};
 
-export const getAccount = async (req: express.Request, res: express.Response) => {
+export const list = async (req: express.Request, res: express.Response) => {
   try {
-    const { id } = req.params;
-    const existingAccount = await getAccountById(id);
-    if ( existingAccount ) {
-      res.status(200).json(existingAccount);
-    } else {
-      res.status(404).json({ error: 'User not found' });
+    const userId = (req as any).identity?._id;
+    const accounts = await getAccounts(userId);
+    return res.status(200).json({ accounts });
+  } catch (error) {
+    return res.status(500).json({ message: 'An unexpected error occurred' });
+  }
+};
+
+export const get = async (req: express.Request, res: express.Response) => {
+  try {
+    const { accountNumber } = req.params;
+    const userId = (req as any).identity?._id;
+    const account = await getAccountByNumber(accountNumber);
+
+    if (!account) {
+      return res.status(404).json({ message: 'Bank account was not found' });
     }
-  } catch (error) {
-    res.status(400).json({ error: 'Internal Server Error' });
-  }
-}
-
-export const getAccounts = async (req: express.Request, res: express.Response) => {
-  try {
-    const { id } = req.params;
-    const existingAccounts = await getAccountByUserId(id);
-    if ( existingAccounts ) {
-      res.status(200).json(existingAccounts);
-    } else {
-      res.status(404).json({ error: 'User not found' });
+    if (account.userId.toString() !== userId.toString()) {
+      return res.status(403).json({ message: 'Forbidden' });
     }
+    return res.status(200).json(account);
   } catch (error) {
-    res.status(400).json({ error: 'Internal Server Error' });
+    return res.status(500).json({ message: 'An unexpected error occurred' });
   }
-}
+};
 
-export const deleteAccount = async (req: express.Request, res: express.Response) => {
+export const update = async (req: express.Request, res: express.Response) => {
   try {
-    const { id } = req.params;
-    
-    const deletedAccount = await deleteAccountById(id);
-    if ( deletedAccount ) {
-      res.status(200).json({ message: 'Account deleted successfully' });
-    } else {
-      res.status(404).json({ error: 'Account not found' });
+    const { accountNumber } = req.params;
+    const userId = (req as any).identity?._id;
+    const account = await getAccountByNumber(accountNumber);
+
+    if (!account) {
+      return res.status(404).json({ message: 'Bank account was not found' });
     }
-  } catch (error) {
-    res.status(400).json({ error: 'Internal Server Error' });
-  }
-}
-
-export const updateAccount = async (req: express.Request, res: express.Response) => {
-  try {
-    const { id } = req.params;
-    const { name } = req.body;
-
-    if (!name) {
-      return res.status(400).json({ error: 'Account name is required' });
+    if (account.userId.toString() !== userId.toString()) {
+      return res.status(403).json({ message: 'Forbidden' });
     }
 
-    const existingAccount = await getAccountById(id);
-
-    existingAccount.name = name;
-    await existingAccount.save();
-    return res.status(200).json(existingAccount).end();
-    
+    const updated = await updateAccountByNumber(accountNumber, {
+      ...req.body,
+      updatedTimestamp: new Date(),
+    });
+    return res.status(200).json(updated);
   } catch (error) {
-    res.status(400).json({ error: 'Internal Server Error' });
+    return res.status(500).json({ message: 'An unexpected error occurred' });
   }
-}
+};
+
+export const remove = async (req: express.Request, res: express.Response) => {
+  try {
+    const { accountNumber } = req.params;
+    const userId = (req as any).identity?._id;
+    const account = await getAccountByNumber(accountNumber);
+
+    if (!account) {
+      return res.status(404).json({ message: 'Bank account was not found' });
+    }
+    if (account.userId.toString() !== userId.toString()) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+
+    await deleteAccountByNumber(accountNumber);
+    return res.status(204).send();
+  } catch (error) {
+    return res.status(500).json({ message: 'An unexpected error occurred' });
+  }
+};

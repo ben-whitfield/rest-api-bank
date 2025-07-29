@@ -1,11 +1,11 @@
 import express from 'express';
-import { getAccount, getAccounts, create, deleteAccount, updateAccount } from '../controllers/accounts';
-import { isAuthenticated, isOwner, isAccountOwner } from '../middleware';
+import { create, list, get, update, remove } from '../controllers/accounts';
+import { isAuthenticated } from '../middleware';
 
 export default (router: express.Router) => {
-  router.get('/account/:id', isAuthenticated, isAccountOwner, getAccount);
-  router.get('/accounts/:id', isAuthenticated, isOwner, getAccounts);
-  router.post('/accounts/create', isAuthenticated, create);
-  router.delete('/accounts/:id', isAuthenticated, isAccountOwner, deleteAccount);
-  router.patch('/v1/accounts/:id', isAuthenticated, isAccountOwner, updateAccount);
+  router.post('/v1/accounts', isAuthenticated, create);
+  router.get('/v1/accounts', isAuthenticated, list);
+  router.get('/v1/accounts/:accountNumber', isAuthenticated, get);
+  router.patch('/v1/accounts/:accountNumber', isAuthenticated, update);
+  router.delete('/v1/accounts/:accountNumber', isAuthenticated, remove);
 };

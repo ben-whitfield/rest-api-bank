@@ -26,7 +26,7 @@ const transactionSchema = new mongoose.Schema({
     required: true,
     default: Date.now,
   },
-  accountNumber: { type: mongoose.Schema.Types.ObjectId, ref: "Account", required: true },
+  accountId: { type: mongoose.Schema.Types.ObjectId, ref: "Account", required: true },
 });
 
 export const TransactionModel = mongoose.model("Transaction", transactionSchema);
@@ -34,7 +34,7 @@ export const TransactionModel = mongoose.model("Transaction", transactionSchema)
 export const createTransaction = (values: Record<string, any>) =>
   new TransactionModel(values).save().then(tx => tx.toObject());
 
-export const getTransactionsByAccount = (accountNumber: string) =>
-  TransactionModel.find({ accountNumber }).then(txs => txs.map(tx => tx.toObject()));
+export const getTransactionsByAccount = (accountId: string) =>
+  TransactionModel.find({ accountId }).then(txs => txs.map(tx => tx.toObject()));
 
 export const getTransactionById = (id: string) => TransactionModel.findById(id);
