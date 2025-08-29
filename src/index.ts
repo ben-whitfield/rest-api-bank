@@ -30,7 +30,6 @@ server.listen(PORT, () => {
   console.log('Server is running on http://' + HOST + ':' + PORT);
 });
 
-// mongoose.Promise = Promise;
 mongoose.connect(MONGO_URL);
 mongoose.connection.on('error', (err: Error) => {
   console.log('MongoDB connection error:', err);
